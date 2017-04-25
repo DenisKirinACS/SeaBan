@@ -7,3 +7,6 @@ Xamarin C# OpenGL ES
 
 at SceneRender.cs enable Boat boat = new Boat(context, "boat_obj", "map", this, Resource.Drawable.boat, Resource.Drawable.boatf, Resource.Drawable.boats);
 for model loading and view.
+
+https://play.google.com/store/apps/details?id=com.seaban.edge
+
