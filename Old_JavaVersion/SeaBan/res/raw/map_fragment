@@ -1,0 +1,101 @@
+precision mediump float;  
+							
+uniform sampler2D u_Texture;
+uniform sampler2D u_TextureF;
+uniform sampler2D u_TextureS;
+
+varying vec3 v_LightPos;
+varying vec4 v_Color; 
+varying vec3 v_Coord; 
+varying vec3 v_Normal;  
+varying vec2 v_TexCoordinate;
+varying mat4 v_MVMatrix;
+uniform vec4 rocketsPos[30];
+
+// lighting
+float diffuse(vec3 n,vec3 l,float p) {
+    return pow(dot(n,l) * 0.4 + 0.6,p);
+}
+float specular(vec3 n,vec3 l,vec3 e,float s) {    
+    float nrm = (s + 10.0) / (3.1415 * 120.0);
+    return pow(max(dot(reflect(e,n),l),0.0),s) * nrm;
+}
+
+float hash( vec2 p ) {
+	float h = dot(p,vec2(127.1,311.7));	
+    return fract(sin(h)*43758.5453123);
+}
+
+float noise( in vec2 p ) {
+    vec2 i = floor( p );
+    vec2 f = fract( p );	
+	vec2 u = f*f*(3.0-2.0*f);
+    return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ), 
+                     hash( i + vec2(1.0,0.0) ), u.x),
+                mix( hash( i + vec2(0.0,1.0) ), 
+                     hash( i + vec2(1.0,1.0) ), u.x), u.y);
+}
+
+
+void main(){ 
+	
+	float distance;
+	float diffuse;
+
+
+	//distance = length(v_LightPos - v_Coord) / 75.0;	
+	
+	
+	 vec3 lightVector = normalize(v_LightPos - v_Coord);
+	 
+	 
+		 
+	 
+	 diffuse = pow(dot(v_Normal * vec3(texture2D(u_TextureF, v_TexCoordinate)) , lightVector) , 0.5);
+	 
+	 float specularColor =  specular(vec3(v_Normal * vec3(texture2D(u_TextureS, v_TexCoordinate))), lightVector,v_LightPos, 0.01);
+	 
+ vec4 color = vec4(0.1, 0.1, 0.1, 1.0);
+ 
+ 
+
+
+float blurAmount = 0.00001;
+
+color += texture2D(u_Texture, vec2(v_TexCoordinate.x, v_TexCoordinate.y - 4.0*blurAmount)) * 0.05;
+color += texture2D(u_Texture, vec2(v_TexCoordinate.x, v_TexCoordinate.y - 3.0*blurAmount)) * 0.09;
+color += texture2D(u_Texture, vec2(v_TexCoordinate.x, v_TexCoordinate.y - 2.0*blurAmount)) * 0.12;
+color += texture2D(u_Texture, vec2(v_TexCoordinate.x, v_TexCoordinate.y - blurAmount)) * 0.15;
+color += texture2D(u_Texture, vec2(v_TexCoordinate.x, v_TexCoordinate.y)) * 0.16;
+color += texture2D(u_Texture, vec2(v_TexCoordinate.x, v_TexCoordinate.y + blurAmount)) * 0.15;
+color += texture2D(u_Texture, vec2(v_TexCoordinate.x, v_TexCoordinate.y + 2.0*blurAmount)) * 0.12;
+color += texture2D(u_Texture, vec2(v_TexCoordinate.x, v_TexCoordinate.y + 3.0*blurAmount)) * 0.09;
+color += texture2D(u_Texture, vec2(v_TexCoordinate.x, v_TexCoordinate.y + 4.0*blurAmount)) * 0.05;
+
+	
+ 
+ color *= vec4(diffuse);
+ color += vec4(specularColor);
+ 
+ //diffuse = mix(diffuse, specularColor, 1.3);
+ //color *= vec4(diffuse);
+ 
+ 
+ //color *= vec4(specularColor);
+ //color = mix(vec4(specularColor), vec4(diffuse), color, 0.3); 
+
+//if (specularColor < 1.9) color = color + vec4(specularColor); 
+ 
+ 
+ 
+	 
+	 //gl_FragColor = vec4(diffuse) * texture2D(u_Texture, v_TexCoordinate);
+	 //gl_FragColor = vec4(diffuse) * color;
+	 
+	// gl_FragColor = color; // vec4(pow(color,vec4(0.75)));
+	
+	 gl_FragColor = color;
+	 
+	
+
+}
